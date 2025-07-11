@@ -204,7 +204,6 @@
             display: none;
         }
 
-        /* 用户仪表盘样式 */
         .dashboard {
             background: var(--card-bg);
             padding: 30px;
@@ -267,7 +266,6 @@
             gap: 10px;
         }
 
-        /* 上传区域 */
         .upload-area {
             border: 2px dashed rgba(255, 255, 255, 0.3);
             padding: 40px;
@@ -311,7 +309,6 @@
             display: none;
         }
 
-        /* 存储信息 */
         .storage-info {
             margin-bottom: 30px;
             padding: 20px;
@@ -374,7 +371,6 @@
             100% { transform: translateX(100%); }
         }
 
-        /* 标签页 */
         .tabs {
             display: flex;
             margin-bottom: 20px;
@@ -423,7 +419,6 @@
             display: block;
         }
 
-        /* 文件列表 */
         .file-list {
             margin-top: 20px;
         }
@@ -500,7 +495,6 @@
             color: var(--danger);
         }
 
-        /* 空状态 */
         .empty-state {
             text-align: center;
             padding: 40px;
@@ -513,7 +507,6 @@
             color: rgba(255, 255, 255, 0.2);
         }
 
-        /* 模态框 */
         .modal {
             position: fixed;
             top: 0;
@@ -583,7 +576,6 @@
             margin-top: 20px;
         }
 
-        /* 头像上传 */
         .avatar-upload {
             display: flex;
             flex-direction: column;
@@ -636,7 +628,6 @@
             display: none;
         }
 
-        /* 响应式设计 */
         @media (max-width: 768px) {
             .auth-forms {
                 flex-direction: column;
@@ -664,7 +655,6 @@
             }
         }
 
-        /* 动画 */
         @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.05); }
@@ -675,7 +665,6 @@
             animation: pulse 2s infinite;
         }
 
-        /* 通知 */
         .notification {
             position: fixed;
             top: 20px;
@@ -712,6 +701,150 @@
         .notification i {
             font-size: 1.2rem;
         }
+
+        /* 密码强度检测样式 */
+        .password-strength {
+            margin-top: 5px;
+            height: 5px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .password-strength-bar {
+            height: 100%;
+            width: 0;
+            transition: width 0.3s, background 0.3s;
+        }
+        
+        .password-requirements {
+            margin-top: 5px;
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        
+        .requirement {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2px;
+        }
+        
+        .requirement i {
+            margin-right: 5px;
+            font-size: 0.7rem;
+        }
+        
+        .requirement.valid {
+            color: #28a745;
+        }
+        
+        .requirement.invalid {
+            color: #6c757d;
+        }
+
+        /* 分享链接样式 */
+        .share-link-container {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .share-link {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .share-link input {
+            flex: 1;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .share-link button {
+            margin-left: 10px;
+            padding: 8px 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .share-link button:hover {
+            background: var(--primary-dark);
+        }
+        
+        .share-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* 设备同步提示 */
+        .sync-notice {
+            background: rgba(67, 97, 238, 0.2);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sync-notice i {
+            color: var(--primary);
+        }
+
+        /* 文件操作菜单 */
+        .file-menu {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .file-menu-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .file-menu-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background: #1e293b;
+            min-width: 160px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+        
+        .file-menu-content a {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 10px 15px;
+            text-decoration: none;
+            display: block;
+            transition: background 0.3s;
+        }
+        
+        .file-menu-content a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .file-menu:hover .file-menu-content {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -722,6 +855,11 @@
         
         <!-- 未登录状态 -->
         <div id="guest-view">
+            <div class="sync-notice">
+                <i class="fas fa-info-circle"></i>
+                <span>您可以在不同设备上使用同一账号登录，无需重复注册</span>
+            </div>
+            
             <div class="auth-forms">
                 <div class="form-container">
                     <h2>登录</h2>
@@ -748,12 +886,34 @@
                         <div class="form-group">
                             <label for="register-password">密码</label>
                             <input type="password" id="register-password" required>
+                            <div class="password-strength">
+                                <div class="password-strength-bar" id="password-strength-bar"></div>
+                            </div>
+                            <div class="password-requirements">
+                                <div class="requirement" id="req-length">
+                                    <i class="fas fa-circle"></i>
+                                    <span>至少6个字符</span>
+                                </div>
+                                <div class="requirement" id="req-uppercase">
+                                    <i class="fas fa-circle"></i>
+                                    <span>包含大写字母</span>
+                                </div>
+                                <div class="requirement" id="req-lowercase">
+                                    <i class="fas fa-circle"></i>
+                                    <span>包含小写字母</span>
+                                </div>
+                                <div class="requirement" id="req-number">
+                                    <i class="fas fa-circle"></i>
+                                    <span>包含数字</span>
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="register-confirm-password">确认密码</label>
                             <input type="password" id="register-confirm-password" required>
+                            <div id="password-match" style="font-size: 0.8rem; color: #6c757d; margin-top: 5px;"></div>
                         </div>
-                        <button type="submit" class="btn btn-success btn-block">注册</button>
+                        <button type="submit" class="btn btn-success btn-block" id="register-btn" disabled>注册</button>
                     </form>
                 </div>
             </div>
@@ -848,7 +1008,7 @@
         </div>
         
         <footer>
-            <p>泰州二附中网盘 &copy; 2023 - 高科技版</p>
+            <p>泰州二附中网盘 &copy; 2023 - 多设备同步与文件分享版</p>
         </footer>
     </div>
     
@@ -894,6 +1054,25 @@
                     <button type="submit" class="btn btn-success">保存更改</button>
                 </div>
             </form>
+        </div>
+    </div>
+    
+    <!-- 分享链接模态框 -->
+    <div class="modal" id="share-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>分享文件</h3>
+                <button class="modal-close" id="close-share-modal">&times;</button>
+            </div>
+            <div class="share-link">
+                <input type="text" id="share-link-input" readonly>
+                <button class="copy-link" data-target="share-link-input">
+                    <i class="fas fa-copy"></i> 复制
+                </button>
+            </div>
+            <div class="modal-footer" id="share-modal-footer">
+                <button type="button" class="btn" id="close-share-modal-btn">关闭</button>
+            </div>
         </div>
     </div>
     
@@ -943,8 +1122,26 @@
         const notification = document.getElementById('notification');
         const notificationMessage = document.getElementById('notification-message');
         
+        // 密码强度检测相关元素
+        const passwordInput = document.getElementById('register-password');
+        const confirmPasswordInput = document.getElementById('register-confirm-password');
+        const passwordStrengthBar = document.getElementById('password-strength-bar');
+        const registerBtn = document.getElementById('register-btn');
+        const reqLength = document.getElementById('req-length');
+        const reqUppercase = document.getElementById('req-uppercase');
+        const reqLowercase = document.getElementById('req-lowercase');
+        const reqNumber = document.getElementById('req-number');
+        const passwordMatch = document.getElementById('password-match');
+        
+        // 分享相关元素
+        const shareModal = document.getElementById('share-modal');
+        const closeShareModalBtn = document.getElementById('close-share-modal-btn');
+        const shareLinkInput = document.getElementById('share-link-input');
+        const shareModalFooter = document.getElementById('share-modal-footer');
+        
         // 初始化
         checkLoginStatus();
+        checkForShareToken();
         
         // 事件监听
         loginForm.addEventListener('submit', handleLogin);
@@ -976,6 +1173,16 @@
             }
         });
         
+        // 密码强度检测
+        passwordInput.addEventListener('input', checkPasswordStrength);
+        confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+        document.getElementById('register-username').addEventListener('input', updateRegisterButton);
+        
+        // 分享相关事件
+        closeShareModalBtn?.addEventListener('click', () => {
+            shareModal.classList.remove('active');
+        });
+        
         // 标签页切换
         tabs.forEach(tab => {
             tab.addEventListener('click', () => {
@@ -986,6 +1193,71 @@
                 const tabId = tab.getAttribute('data-tab');
                 document.getElementById(`${tabId}-tab`).classList.add('active');
             });
+        });
+        
+        // 文件操作事件委托
+        document.addEventListener('click', function(e) {
+            // 分享文件
+            if (e.target.classList.contains('share-file') || e.target.closest('.share-file')) {
+                e.preventDefault();
+                const shareBtn = e.target.classList.contains('share-file') ? e.target : e.target.closest('.share-file');
+                const fileId = parseInt(shareBtn.getAttribute('data-id'));
+                
+                const shareLink = generateShareLink(fileId);
+                if (shareLink) {
+                    // 显示分享链接
+                    const shareContainer = document.getElementById(`share-container-${fileId}`);
+                    const shareInput = document.getElementById(`share-link-${fileId}`);
+                    
+                    if (shareContainer && shareInput) {
+                        shareInput.value = shareLink;
+                        shareContainer.style.display = 'block';
+                        
+                        showNotification('分享链接已生成!', 'success');
+                    }
+                }
+            }
+            
+            // 复制链接
+            if (e.target.classList.contains('copy-link') || e.target.closest('.copy-link')) {
+                e.preventDefault();
+                const copyBtn = e.target.classList.contains('copy-link') ? e.target : e.target.closest('.copy-link');
+                const targetId = copyBtn.getAttribute('data-target');
+                const input = document.getElementById(targetId);
+                
+                if (input) {
+                    input.select();
+                    document.execCommand('copy');
+                    
+                    showNotification('链接已复制到剪贴板!', 'success');
+                }
+            }
+            
+            // 删除文件
+            if (e.target.classList.contains('delete') || e.target.closest('.delete')) {
+                e.preventDefault();
+                const deleteBtn = e.target.classList.contains('delete') ? e.target : e.target.closest('.delete');
+                const fileId = parseInt(deleteBtn.getAttribute('data-id'));
+                moveToRecycleBin(fileId);
+            }
+            
+            // 恢复文件
+            if (e.target.classList.contains('restore') || e.target.closest('.restore')) {
+                e.preventDefault();
+                const restoreBtn = e.target.classList.contains('restore') ? e.target : e.target.closest('.restore');
+                const fileId = parseInt(restoreBtn.getAttribute('data-id'));
+                restoreFromRecycleBin(fileId);
+            }
+            
+            // 永久删除
+            if (e.target.classList.contains('delete-permanent') || e.target.closest('.delete-permanent')) {
+                e.preventDefault();
+                const deleteBtn = e.target.classList.contains('delete-permanent') ? e.target : e.target.closest('.delete-permanent');
+                const fileId = parseInt(deleteBtn.getAttribute('data-id'));
+                if (confirm('确定要永久删除此文件吗？此操作不可恢复！')) {
+                    deleteFromRecycleBin(fileId);
+                }
+            }
         });
         
         // 函数定义
@@ -1015,6 +1287,18 @@
         
         function loadUserProfile() {
             const user = users.find(u => u.username === currentUser);
+            if (!user) {
+                // 检查共享存储
+                const sharedStorage = getSharedStorage();
+                const sharedUser = sharedStorage.users.find(u => u.username === currentUser);
+                if (sharedUser) {
+                    users.push(sharedUser);
+                    localStorage.setItem('users', JSON.stringify(users));
+                    loadUserProfile();
+                    return;
+                }
+            }
+            
             if (user) {
                 currentUserSpan.textContent = user.username;
                 editUsername.value = user.username;
@@ -1032,12 +1316,45 @@
             }
         }
         
+        // 模拟多设备同步的共享存储
+        function getSharedStorage() {
+            // 在实际应用中，这里应该是一个后端API调用
+            // 这里我们使用localStorage模拟
+            return {
+                users: JSON.parse(localStorage.getItem('shared_users')) || [],
+                files: JSON.parse(localStorage.getItem('shared_files')) || [],
+                shares: JSON.parse(localStorage.getItem('shared_shares')) || []
+            };
+        }
+        
+        function updateSharedStorage(data) {
+            // 在实际应用中，这里应该是一个后端API调用
+            localStorage.setItem('shared_users', JSON.stringify(data.users));
+            localStorage.setItem('shared_files', JSON.stringify(data.files));
+            localStorage.setItem('shared_shares', JSON.stringify(data.shares));
+        }
+        
         function handleLogin(e) {
             e.preventDefault();
             const username = document.getElementById('login-username').value;
             const password = document.getElementById('login-password').value;
             
-            const user = users.find(u => u.username === username && u.password === password);
+            // 先检查本地存储
+            let user = users.find(u => u.username === username && u.password === password);
+            
+            // 如果本地没有，检查共享存储
+            if (!user) {
+                const sharedStorage = getSharedStorage();
+                user = sharedStorage.users.find(u => u.username === username && u.password === password);
+                
+                if (user) {
+                    // 将用户添加到本地存储
+                    if (!users.some(u => u.username === username)) {
+                        users.push(user);
+                        localStorage.setItem('users', JSON.stringify(users));
+                    }
+                }
+            }
             
             if (user) {
                 currentUser = username;
@@ -1053,33 +1370,193 @@
             }
         }
         
+        function checkPasswordStrength() {
+            const password = passwordInput.value;
+            let strength = 0;
+            let validRequirements = 0;
+            const totalRequirements = 4;
+            
+            // 检查密码长度
+            if (password.length >= 6) {
+                strength += 25;
+                reqLength.classList.add('valid');
+                reqLength.classList.remove('invalid');
+                reqLength.querySelector('i').className = 'fas fa-check-circle';
+                validRequirements++;
+            } else {
+                reqLength.classList.add('invalid');
+                reqLength.classList.remove('valid');
+                reqLength.querySelector('i').className = 'fas fa-circle';
+            }
+            
+            // 检查大写字母
+            if (/[A-Z]/.test(password)) {
+                strength += 25;
+                reqUppercase.classList.add('valid');
+                reqUppercase.classList.remove('invalid');
+                reqUppercase.querySelector('i').className = 'fas fa-check-circle';
+                validRequirements++;
+            } else {
+                reqUppercase.classList.add('invalid');
+                reqUppercase.classList.remove('valid');
+                reqUppercase.querySelector('i').className = 'fas fa-circle';
+            }
+            
+            // 检查小写字母
+            if (/[a-z]/.test(password)) {
+                strength += 25;
+                reqLowercase.classList.add('valid');
+                reqLowercase.classList.remove('invalid');
+                reqLowercase.querySelector('i').className = 'fas fa-check-circle';
+                validRequirements++;
+            } else {
+                reqLowercase.classList.add('invalid');
+                reqLowercase.classList.remove('valid');
+                reqLowercase.querySelector('i').className = 'fas fa-circle';
+            }
+            
+            // 检查数字
+            if (/[0-9]/.test(password)) {
+                strength += 25;
+                reqNumber.classList.add('valid');
+                reqNumber.classList.remove('invalid');
+                reqNumber.querySelector('i').className = 'fas fa-check-circle';
+                validRequirements++;
+            } else {
+                reqNumber.classList.add('invalid');
+                reqNumber.classList.remove('valid');
+                reqNumber.querySelector('i').className = 'fas fa-circle';
+            }
+            
+            // 更新强度条
+            passwordStrengthBar.style.width = `${strength}%`;
+            
+            // 设置强度条颜色
+            if (strength < 50) {
+                passwordStrengthBar.style.background = '#dc3545'; // 红色
+            } else if (strength < 75) {
+                passwordStrengthBar.style.background = '#fd7e14'; // 橙色
+            } else if (strength < 100) {
+                passwordStrengthBar.style.background = '#ffc107'; // 黄色
+            } else {
+                passwordStrengthBar.style.background = '#28a745'; // 绿色
+            }
+            
+            // 检查密码匹配
+            checkPasswordMatch();
+            
+            // 启用/禁用注册按钮
+            updateRegisterButton();
+        }
+        
+        function checkPasswordMatch() {
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            
+            if (confirmPassword.length === 0) {
+                passwordMatch.textContent = '';
+                passwordMatch.style.color = '#6c757d';
+            } else if (password === confirmPassword) {
+                passwordMatch.textContent = '密码匹配';
+                passwordMatch.style.color = '#28a745';
+            } else {
+                passwordMatch.textContent = '密码不匹配';
+                passwordMatch.style.color = '#dc3545';
+            }
+            
+            // 启用/禁用注册按钮
+            updateRegisterButton();
+        }
+        
+        function updateRegisterButton() {
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            const username = document.getElementById('register-username').value;
+            
+            // 检查所有密码要求是否满足
+            const isPasswordValid = password.length >= 6 && 
+                                 /[A-Z]/.test(password) && 
+                                 /[a-z]/.test(password) && 
+                                 /[0-9]/.test(password);
+            
+            // 检查密码是否匹配
+            const isPasswordMatch = password === confirmPassword && confirmPassword.length > 0;
+            
+            // 检查用户名是否为空
+            const isUsernameValid = username.length > 0;
+            
+            // 启用/禁用按钮
+            registerBtn.disabled = !(isPasswordValid && isPasswordMatch && isUsernameValid);
+        }
+        
         function handleRegister(e) {
             e.preventDefault();
             const username = document.getElementById('register-username').value;
             const password = document.getElementById('register-password').value;
             const confirmPassword = document.getElementById('register-confirm-password').value;
             
+            // 检查密码强度
+            if (password.length < 6) {
+                showNotification('密码长度必须至少6个字符!', 'error');
+                return;
+            }
+            
+            if (!/[A-Z]/.test(password)) {
+                showNotification('密码必须包含至少一个大写字母!', 'error');
+                return;
+            }
+            
+            if (!/[a-z]/.test(password)) {
+                showNotification('密码必须包含至少一个小写字母!', 'error');
+                return;
+            }
+            
+            if (!/[0-9]/.test(password)) {
+                showNotification('密码必须包含至少一个数字!', 'error');
+                return;
+            }
+            
             if (password !== confirmPassword) {
                 showNotification('两次输入的密码不一致!', 'error');
                 return;
             }
             
-            if (users.some(u => u.username === username)) {
+            // 检查全局用户名唯一性
+            const sharedStorage = getSharedStorage();
+            if (sharedStorage.users.some(u => u.username === username) || users.some(u => u.username === username)) {
                 showNotification('用户名已存在!', 'error');
                 return;
             }
             
-            users.push({ 
+            // 创建新用户
+            const newUser = { 
                 username, 
                 password,
                 email: '',
                 avatar: ''
-            });
+            };
+            
+            // 更新本地和共享存储
+            users.push(newUser);
+            sharedStorage.users.push(newUser);
+            
             localStorage.setItem('users', JSON.stringify(users));
+            updateSharedStorage(sharedStorage);
+            
             showNotification('注册成功! 请登录。', 'success');
             
             // 清空表单
             registerForm.reset();
+            passwordStrengthBar.style.width = '0';
+            
+            // 重置密码要求显示
+            [reqLength, reqUppercase, reqLowercase, reqNumber].forEach(req => {
+                req.classList.add('invalid');
+                req.classList.remove('valid');
+                req.querySelector('i').className = 'fas fa-circle';
+            });
+            
+            passwordMatch.textContent = '';
         }
         
         function handleLogout() {
@@ -1110,9 +1587,13 @@
             const confirmPwd = confirmNewPassword.value;
             
             // 检查用户名是否已存在
-            if (newUsername !== user.username && users.some(u => u.username === newUsername)) {
-                showNotification('用户名已存在!', 'error');
-                return;
+            if (newUsername !== user.username) {
+                const sharedStorage = getSharedStorage();
+                if (sharedStorage.users.some(u => u.username === newUsername) || 
+                    users.some(u => u.username === newUsername && u !== user)) {
+                    showNotification('用户名已存在!', 'error');
+                    return;
+                }
             }
             
             // 检查密码更改
@@ -1132,6 +1613,27 @@
                     return;
                 }
                 
+                // 检查新密码强度
+                if (newPwd.length < 6) {
+                    showNotification('新密码长度必须至少6个字符!', 'error');
+                    return;
+                }
+                
+                if (!/[A-Z]/.test(newPwd)) {
+                    showNotification('新密码必须包含至少一个大写字母!', 'error');
+                    return;
+                }
+                
+                if (!/[a-z]/.test(newPwd)) {
+                    showNotification('新密码必须包含至少一个小写字母!', 'error');
+                    return;
+                }
+                
+                if (!/[0-9]/.test(newPwd)) {
+                    showNotification('新密码必须包含至少一个数字!', 'error');
+                    return;
+                }
+                
                 user.password = newPwd;
                 showNotification('密码已更新', 'success');
             }
@@ -1140,15 +1642,48 @@
             user.username = newUsername;
             user.email = newEmail;
             
+            // 更新共享存储
+            const sharedStorage = getSharedStorage();
+            const sharedUserIndex = sharedStorage.users.findIndex(u => u.username === currentUser);
+            if (sharedUserIndex !== -1) {
+                sharedStorage.users[sharedUserIndex] = user;
+            }
+            
             // 如果是当前用户更改了用户名，更新登录状态
             if (newUsername !== currentUser) {
                 currentUser = newUsername;
                 localStorage.setItem('loggedInUser', newUsername);
                 currentUserSpan.textContent = newUsername;
+                
+                // 更新文件和分享的所有者
+                files.forEach(f => {
+                    if (f.owner === user.username) {
+                        f.owner = newUsername;
+                    }
+                });
+                
+                recycleBin.forEach(f => {
+                    if (f.owner === user.username) {
+                        f.owner = newUsername;
+                    }
+                });
+                
+                sharedStorage.files.forEach(f => {
+                    if (f.owner === user.username) {
+                        f.owner = newUsername;
+                    }
+                });
+                
+                sharedStorage.shares.forEach(s => {
+                    if (s.owner === user.username) {
+                        s.owner = newUsername;
+                    }
+                });
             }
             
             users[userIndex] = user;
             localStorage.setItem('users', JSON.stringify(users));
+            updateSharedStorage(sharedStorage);
             
             // 更新显示
             userEmailSpan.textContent = newEmail || '未设置邮箱';
@@ -1176,6 +1711,14 @@
                     users[userIndex].avatar = avatarUrl;
                     localStorage.setItem('users', JSON.stringify(users));
                     
+                    // 更新共享存储
+                    const sharedStorage = getSharedStorage();
+                    const sharedUserIndex = sharedStorage.users.findIndex(u => u.username === currentUser);
+                    if (sharedUserIndex !== -1) {
+                        sharedStorage.users[sharedUserIndex].avatar = avatarUrl;
+                        updateSharedStorage(sharedStorage);
+                    }
+                    
                     // 更新显示
                     userAvatar.innerHTML = `<img src="${avatarUrl}" alt="${currentUser}">`;
                     avatarPreview.innerHTML = `<img src="${avatarUrl}" alt="${currentUser}">`;
@@ -1200,18 +1743,19 @@
                 return;
             }
             
+            const sharedStorage = getSharedStorage();
+            const userFiles = [...files.filter(f => f.owner === currentUser), 
+                              ...sharedStorage.files.filter(f => f.owner === currentUser)];
+            const totalUsed = userFiles.reduce((sum, f) => sum + parseFloat(f.size), 0);
+            
+            if (totalUsed + (totalSize / (1024 * 1024 * 1024)) > 10) {
+                showNotification('存储空间不足!', 'error');
+                return;
+            }
+            
             for (let i = 0; i < fileList.length; i++) {
                 const file = fileList[i];
                 const fileSizeGB = (file.size / (1024 * 1024 * 1024)).toFixed(3);
-                
-                // 检查存储空间 (10GB限制)
-                const userFiles = files.filter(f => f.owner === currentUser);
-                const totalUsed = userFiles.reduce((sum, f) => sum + parseFloat(f.size), 0);
-                
-                if (totalUsed + parseFloat(fileSizeGB) > 10) {
-                    showNotification('存储空间不足!', 'error');
-                    return;
-                }
                 
                 const fileData = {
                     id: Date.now() + i,
@@ -1224,13 +1768,16 @@
                 };
                 
                 files.push(fileData);
+                sharedStorage.files.push(fileData);
             }
             
             localStorage.setItem('files', JSON.stringify(files));
+            updateSharedStorage(sharedStorage);
+            
             updateFileList();
             updateStorageInfo();
             showNotification('文件上传成功!', 'success');
-            fileInput.value = ''; // 清空文件输入
+            fileInput.value = '';
         }
         
         function getFileType(filename) {
@@ -1313,24 +1860,38 @@
                     <td>${file.type || '未知类型'}</td>
                     <td>${file.uploadTime}</td>
                     <td class="file-actions">
-                        <a href="${file.content}" download="${file.name}" class="download">
-                            <i class="fas fa-download"></i> 下载
-                        </a>
-                        <a href="#" class="delete" data-id="${file.id}">
-                            <i class="fas fa-trash"></i> 删除
-                        </a>
+                        <div class="file-menu">
+                            <button class="file-menu-btn">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <div class="file-menu-content">
+                                <a href="${file.content}" download="${file.name}">
+                                    <i class="fas fa-download"></i> 下载
+                                </a>
+                                <a href="#" class="share-file" data-id="${file.id}">
+                                    <i class="fas fa-share-alt"></i> 分享
+                                </a>
+                                <a href="#" class="delete" data-id="${file.id}">
+                                    <i class="fas fa-trash"></i> 删除
+                                </a>
+                            </div>
+                        </div>
+                        <div class="share-link-container" id="share-container-${file.id}">
+                            <div class="share-link">
+                                <input type="text" id="share-link-${file.id}" readonly>
+                                <button class="copy-link" data-target="share-link-${file.id}">
+                                    <i class="fas fa-copy"></i> 复制
+                                </button>
+                            </div>
+                            <div class="share-actions">
+                                <button class="btn" onclick="document.getElementById('share-container-${file.id}').style.display='none'">
+                                    关闭
+                                </button>
+                            </div>
+                        </div>
                     </td>
                 `;
                 fileTableBody.appendChild(row);
-            });
-            
-            // 添加删除事件
-            document.querySelectorAll('.file-actions a.delete').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const fileId = parseInt(link.getAttribute('data-id'));
-                    moveToRecycleBin(fileId);
-                });
             });
         }
         
@@ -1373,25 +1934,6 @@
                 `;
                 recycleBinTableBody.appendChild(row);
             });
-            
-            // 添加恢复和永久删除事件
-            document.querySelectorAll('.file-actions a.restore').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const fileId = parseInt(link.getAttribute('data-id'));
-                    restoreFromRecycleBin(fileId);
-                });
-            });
-            
-            document.querySelectorAll('.file-actions a.delete-permanent').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const fileId = parseInt(link.getAttribute('data-id'));
-                    if (confirm('确定要永久删除此文件吗？此操作不可恢复！')) {
-                        deleteFromRecycleBin(fileId);
-                    }
-                });
-            });
         }
         
         function moveToRecycleBin(fileId) {
@@ -1406,8 +1948,16 @@
             
             files.splice(fileIndex, 1);
             
+            // 更新共享存储
+            const sharedStorage = getSharedStorage();
+            const sharedFileIndex = sharedStorage.files.findIndex(f => f.id === fileId);
+            if (sharedFileIndex !== -1) {
+                sharedStorage.files.splice(sharedFileIndex, 1);
+            }
+            
             localStorage.setItem('files', JSON.stringify(files));
             localStorage.setItem('recycleBin', JSON.stringify(recycleBin));
+            updateSharedStorage(sharedStorage);
             
             updateFileList();
             updateRecycleBin();
@@ -1430,10 +1980,23 @@
                 content: file.content
             });
             
+            // 更新共享存储
+            const sharedStorage = getSharedStorage();
+            sharedStorage.files.push({
+                id: file.id,
+                name: file.name,
+                size: file.size,
+                type: file.type,
+                owner: file.owner,
+                uploadTime: file.uploadTime,
+                content: file.content
+            });
+            
             recycleBin.splice(fileIndex, 1);
             
             localStorage.setItem('files', JSON.stringify(files));
             localStorage.setItem('recycleBin', JSON.stringify(recycleBin));
+            updateSharedStorage(sharedStorage);
             
             updateFileList();
             updateRecycleBin();
@@ -1451,8 +2014,19 @@
                 URL.revokeObjectURL(file.content);
             }
             
+            // 从共享存储中删除
+            const sharedStorage = getSharedStorage();
+            const sharedFileIndex = sharedStorage.files.findIndex(f => f.id === fileId);
+            if (sharedFileIndex !== -1) {
+                sharedStorage.files.splice(sharedFileIndex, 1);
+            }
+            
+            // 删除相关分享
+            sharedStorage.shares = sharedStorage.shares.filter(s => s.fileId !== fileId);
+            
             recycleBin.splice(fileIndex, 1);
             localStorage.setItem('recycleBin', JSON.stringify(recycleBin));
+            updateSharedStorage(sharedStorage);
             
             updateRecycleBin();
             updateStorageInfo();
@@ -1463,7 +2037,10 @@
             if (!currentUser) return;
             
             const userFiles = files.filter(f => f.owner === currentUser);
-            const totalUsed = userFiles.reduce((sum, f) => sum + parseFloat(f.size), 0);
+            const sharedStorage = getSharedStorage();
+            const sharedUserFiles = sharedStorage.files.filter(f => f.owner === currentUser);
+            
+            const totalUsed = [...userFiles, ...sharedUserFiles].reduce((sum, f) => sum + parseFloat(f.size), 0);
             
             storageUsedSpan.textContent = totalUsed.toFixed(3);
             storageTotalSpan.textContent = '10';
@@ -1478,6 +2055,66 @@
                 storageProgress.style.background = 'var(--warning)';
             } else {
                 storageProgress.style.background = 'var(--bg-gradient)';
+            }
+        }
+        
+        function generateShareLink(fileId) {
+            const file = files.find(f => f.id === fileId);
+            if (!file) return null;
+            
+            // 在实际应用中，这里应该生成一个唯一的token并存储在后端
+            // 这里我们简单使用文件ID模拟
+            const token = `share_${fileId}_${Date.now()}`;
+            
+            // 保存分享记录
+            const sharedStorage = getSharedStorage();
+            sharedStorage.shares.push({
+                token,
+                fileId,
+                owner: currentUser,
+                createdAt: new Date().toISOString(),
+                expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7天后过期
+            });
+            updateSharedStorage(sharedStorage);
+            
+            // 生成分享链接 (在实际应用中应该是你的网站URL)
+            return `${window.location.origin}${window.location.pathname}?share=${token}`;
+        }
+        
+        function checkForShareToken() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const shareToken = urlParams.get('share');
+            
+            if (shareToken) {
+                // 在实际应用中，这里应该向后端验证token
+                const sharedStorage = getSharedStorage();
+                const share = sharedStorage.shares.find(s => s.token === shareToken);
+                
+                if (share) {
+                    const file = sharedStorage.files.find(f => f.id === share.fileId && f.owner === share.owner);
+                    
+                    if (file) {
+                        // 显示分享模态框
+                        shareLinkInput.value = window.location.href;
+                        
+                        // 提供下载按钮
+                        shareModalFooter.innerHTML = `
+                            <a href="${file.content}" download="${file.name}" class="btn btn-success">
+                                <i class="fas fa-download"></i> 下载文件
+                            </a>
+                            <button type="button" class="btn" id="close-share-modal-btn">关闭</button>
+                        `;
+                        
+                        shareModal.classList.add('active');
+                        
+                        // 清理URL中的分享参数
+                        history.replaceState({}, document.title, window.location.pathname);
+                    } else {
+                        showNotification('分享的文件不存在或已被删除', 'error');
+                    }
+                } else {
+                    showNotification('无效的分享链接', 'error');
+                }
             }
         }
         
