@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>云盘 - 安全存储您的文件</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#36CFC9',
+                        accent: '#722ED1',
+                        neutral: '#F5F7FA',
+                        dark: '#1D2129',
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .file-drop-active {
+                @apply border-primary bg-primary/5;
+            }
+            .auth-shadow {
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+            }
+            .text-balance {
+                text-wrap: balance;
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-gray-50 text-dark min-h-screen flex flex-col">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm sticky top-0 z-50 transition-all duration-300" id="navbar">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <!-- 左侧logo和导航 -->
+            <div class="flex items-center space-x-8">
+                <div class="flex items-center space-x-2">
+                    <i class="fa fa-cloud text-primary text-2xl"></i>
+                    <span class="text-xl font-bold">云盘</span>
+                </div>
+                
+                <nav class="hidden md:flex items-center space-x-6">
+                    <a href="#" class="font-medium text-primary border-b-2 border-primary px-1 py-4">全部文件</a>
+                    <a href="#" class="font-medium text-gray-600 hover:text-primary transition-colors px-1 py-4">最近使用</a>
+                    <a href="#" class="font-medium text-gray-600 hover:text-primary transition-colors px-1 py-4">共享文件</a>
+                    <a href="#" class="font-medium text-gray-600 hover:text-primary transition-colors px-1 py-4">回收站</a>
+                </nav>
+            </div>
+            
+            <!-- 右侧搜索和用户信息 -->
+            <div class="flex items-center space-x-4">
+                <!-- 搜索框 -->
+                <div class="relative hidden md:block">
+                    <input type="text" placeholder="搜索文件..." 
+                           class="pl-10 pr-4 py-2 rounded-full bg-gray-100 focus:bg-white focus:ring-2 focus:ring-primary/30 focus:outline-none w-64 transition-all">
+                    <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                </div>
+                
+                <!-- 上传按钮 -->
+                <button id="upload-btn" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-all transform hover:scale-105">
+                    <i class="fa fa-upload"></i>
+                    <span>上传</span>
+                </button>
+                
+                <!-- 移动端菜单按钮 -->
+                <button id="mobile-menu-btn" class="md:hidden text-gray-600 hover:text-primary">
+                    <i class="fa fa-bars text-xl"></i>
+                </button>
+                
+                <!-- 用户头像 -->
+                <div id="user-profile" class="relative group hidden">
+                    <button class="flex items-center space-x-1 focus:outline-none">
+                        <img id="user-avatar" src="https://picsum.photos/id/1005/200/200" alt="用户头像" class="w-8 h-8 rounded-full object-cover border-2 border-white shadow-sm">
+                        <span id="user-name" class="hidden md:inline-block font-medium">张三</span>
+                        <i class="fa fa-angle-down text-gray-500"></i>
+                    </button>
+                    
+                    <!-- 用户下拉菜单 -->
+                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-2">
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <i class="fa fa-user-circle mr-2"></i>个人信息
+                        </a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <i class="fa fa-cog mr-2"></i>设置
+                        </a>
+                        <div class="border-t border-gray-100 my-1"></div>
+                        <a href="#" id="logout-btn" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                            <i class="fa fa-sign-out mr-2"></i>退出登录
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- 登录按钮 (未登录状态) -->
+                <button id="login-btn" class="bg-white hover:bg-gray-50 text-primary border border-primary px-4 py-2 rounded-lg flex items-center space-x-2 transition-all">
+                    <i class="fa fa-user"></i>
+                    <span>登录</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 移动端导航菜单 -->
+        <div id="mobile-menu" class="md:hidden bg-white border-t border-gray-100 hidden">
+            <div class="container mx-auto px-4 py-2">
+                <div class="relative mb-4">
+                    <input type="text" placeholder="搜索文件..." 
+                           class="pl-10 pr-4 py-2 rounded-full bg-gray-100 focus:bg-white focus:ring-2 focus:ring-primary/30 focus:outline-none w-full transition-all">
+                    <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                </div>
+                <nav class="flex flex-col space-y-1 pb-2">
+                    <a href="#" class="font-medium text-primary px-2 py-2 rounded hover:bg-gray-50">全部文件</a>
+                    <a href="#" class="font-medium text-gray-600 px-2 py-2 rounded hover:bg-gray-50">最近使用</a>
+                    <a href="#" class="font-medium text-gray-600 px-2 py-2 rounded hover:bg-gray-50">共享文件</a>
+                    <a href="#" class="font-medium text-gray-600 px-2 py-2 rounded hover:bg-gray-50">回收站</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main id="main-content" class="flex-grow container mx-auto px-4 py-6">
+        <!-- 进度条和存储信息 -->
+        <div class="bg-white rounded-xl shadow-sm p-5 mb-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
+                <div>
+                    <h2 class="text-xl font-bold mb-1">存储空间</h2>
+                    <p class="text-gray-500">已使用 0GB / 16GB</p>
+                </div>
+                <button class="mt-3 md:mt-0 bg-accent hover:bg-accent/90 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-all transform hover:scale-105">
+                    <i class="fa fa-rocket"></i>
+                    <span>升级空间</span>
+                </button>
+            </div>
+            
+            <!-- 进度条 -->
+            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                <div class="bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+            </div>
+            
+            <!-- 存储类型统计 -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+                <div class="bg-neutral rounded-lg p-3 flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-primary">
+                        <i class="fa fa-file-image-o"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">图片</p>
+                        <p class="font-medium">0GB</p>
+                    </div>
+                </div>
+                
+                <div class="bg-neutral rounded-lg p-3 flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                        <i class="fa fa-file-video-o"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">视频</p>
+                        <p class="font-medium">0GB</p>
+                    </div>
+                </div>
+                
+                <div class="bg-neutral rounded-lg p-3 flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                        <i class="fa fa-file-text-o"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">文档</p>
+                        <p class="font-medium">0GB</p>
+                    </div>
+                </div>
+                
+                <div class="bg-neutral rounded-lg p-3 flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
+                        <i class="fa fa-file-archive-o"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">压缩包</p>
+                        <p class="font-medium">0GB</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 文件操作工具栏 -->
+        <div class="bg-white rounded-xl shadow-sm p-4 mb-6 flex flex-col md:flex-row md:items-center justify-between">
+            <div class="flex items-center space-x-2 mb-3 md:mb-0">
+                <button class="p-2 text-gray-600 hover:text-primary hover:bg-gray-100 rounded transition-colors">
+                    <i class="fa fa-refresh"></i>
+                </button>
+                <button class="p-2 text-gray-600 hover:text-primary hover:bg-gray-100 rounded transition-colors">
+                    <i class="fa fa-folder"></i>
+                    <span class="ml-1 hidden sm:inline">新建文件夹</span>
+                </button>
+                <div class="h-6 w-px bg-gray-200 mx-1"></div>
+                <button class="p-2 text-gray-600 hover:text-primary hover:bg-gray-100 rounded transition-colors">
+                    <i class="fa fa-trash"></i>
+                </button>
+                <button class="p-2 text-gray-600 hover:text-primary hover:bg-gray-100 rounded transition-colors">
+                    <i class="fa fa-download"></i>
+                </button>
+                <button class="p-2 text-gray-600 hover:text-primary hover:bg-gray-100 rounded transition-colors">
+                    <i class="fa fa-share-alt"></i>
+                </button>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+                <div class="relative">
+                    <select class="appearance-none bg-gray-100 text-gray-700 py-2 pl-3 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30">
+                        <option>最近修改时间</option>
+                        <option>名称</option>
+                        <option>大小</option>
+                        <option>类型</option>
+                    </select>
+                    <i class="fa fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"></i>
+                </div>
+                
+                <div class="flex bg-gray-100 rounded-lg p-1">
+                    <button class="p-2 bg-white rounded shadow-sm text-primary">
+                        <i class="fa fa-th-large"></i>
+                    </button>
+                    <button class="p-2 text-gray-600 hover:text-primary transition-colors">
+                        <i class="fa fa-list"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 文件上传区域 -->
+        <div id="upload-area" class="bg-white rounded-xl shadow-sm p-6 mb-6 border-2 border-dashed border-gray-300 text-center transition-all hover:border-primary/50">
+            <div class="py-8">
+                <i class="fa fa-cloud-upload text-5xl text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-semibold mb-2">拖放文件到此处上传</h3>
+                <p class="text-gray-500 mb-6">或者</p>
+                <label for="file-upload" class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg inline-flex items-center space-x-2 cursor-pointer transition-all transform hover:scale-105">
+                    <i class="fa fa-plus"></i>
+                    <span>选择文件</span>
+                </label>
+                <input id="file-upload" type="file" multiple class="hidden">
+                <p class="text-xs text-gray-400 mt-4">每个用户限传16GB，支持最大单个文件大小: 2GB</p>
+            </div>
+        </div>
+        
+        <!-- 文件列表 -->
+        <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+            <h2 class="text-lg font-semibold mb-4">我的文件</h2>
+            
+            <!-- 空文件状态 -->
+            <div class="py-12 text-center">
+                <div class="w-20 h-20 mx-auto mb-4 bg-primary/10 rounded-full flex items-center justify-center">
+                    <i class="fa fa-folder-open-o text-primary text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-medium mb-2">您的云盘还是空的</h3>
+                <p class="text-gray-500 mb-6 max-w-md mx-auto">上传文件到云盘，随时随地访问和共享您的文件</p>
+                <button id="upload-btn-cta" class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg inline-flex items-center space-x-2 transition-all transform hover:scale-105">
+                    <i class="fa fa-upload"></i>
+                    <span>上传文件</span>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-white border-t border-gray-200 py-6">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div class="mb-4 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa fa-cloud text-primary text-xl"></i>
+                        <span class="text-lg font-bold">云盘</span>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-1">安全存储您的所有文件</p>
+                </div>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                    <div>
+                        <h4 class="font-medium mb-3">产品</h4>
+                        <ul class="space-y-2 text-sm text-gray-600">
+                            <li><a href="#" class="hover:text-primary transition-colors">功能介绍</a></li>
+                            <li><a href="#" class="hover:text-primary transition-colors">价格</a></li>
+                            <li><a href="#" class="hover:text-primary transition-colors">企业版</a></li>
+                            <li><a href="#" class="hover:text-primary transition-colors">更新日志</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-medium mb-3">支持</h4>
+                        <ul class="space-y-2 text-sm text-gray-600">
+                            <li><a href="#" class="hover:text-primary transition-colors">帮助中心</a></li>
+                            <li><a href="#" class="hover:text-primary transition-colors">联系我们</a></li>
+                            <li><a href="#" class="hover:text-primary transition-colors">常见问题</a></li>
+                            <li><a href="#" class="hover:text-primary transition-colors">API文档</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-medium mb-3">公司</h4>
+                        <ul class="space-y-2 text-sm text-gray-600">
+                            <li><a href="#" class="hover:text-primary transition-colors">关于我们</a></li>
+                            <li><a href="#" class="hover:text-primary transition-colors">隐私政策</a></li>
+                            <li><a href="#" class="hover:text-primary transition-colors">服务条款</a></li>
+                            <li><a href="#" class="hover:text-primary transition-colors">招贤纳士</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-medium mb-3">关注我们</h4>
+                        <div class="flex space-x-3 mb-3">
+                            <a href="#" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-primary hover:text-white transition-colors">
+                                <i class="fa fa-weixin"></i>
+                            </a>
+                            <a href="#" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-primary hover:text-white transition-colors">
+                                <i class="fa fa-weibo"></i>
+                            </a>
+                            <a href="#" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-primary hover:text-white transition-colors">
+                                <i class="fa fa-github"></i>
+                            </a>
+                        </div>
+                        <p class="text-sm text-gray-500">客服电话：400-123-4567</p>
+                        <p class="text-sm text-gray-500">工作时间：周一至周日 9:00-18:00</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-200 mt-6 pt-6 flex flex-col md:flex-row md:items-center md:justify-between">
+                <p class="text-sm text-gray-500 mb-4 md:mb-0">© 2023 云盘. 保留所有权利</p>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-sm text-gray-500 hover:text-primary transition-colors">隐私政策</a>
+                    <a href="#" class="text-sm text-gray-500 hover:text-primary transition-colors">服务条款</a>
+                    <a href="#" class="text-sm text-gray-500 hover:text-primary transition-colors">Cookie 政策</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 登录模态框 -->
+    <div id="login-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center">
+        <div class="bg-white rounded-xl w-full max-w-md p-6 transform transition-all scale-95 opacity-0" id="login-modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">登录</h3>
+                <button id="close-login-modal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="login-form">
+                <div class="mb-4">
+                    <label for="login-email" class="block text-sm font-medium text-gray-700 mb-1">邮箱</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fa fa-envelope-o text-gray-400"></i>
+                        </div>
+                        <input type="email" id="login-email" name="email" required
+                               class="pl-10 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-primary focus:border-primary"
+                               placeholder="your@email.com">
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label for="login-password" class="block text-sm font-medium text-gray-700 mb-1">密码</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fa fa-lock text-gray-400"></i>
+                        </div>
+                        <input type="password" id="login-password" name="password" required
+                               class="pl-10 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-primary focus:border-primary"
+                               placeholder="••••••••">
+                        <button type="button" id="toggle-login-password" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                            <i class="fa fa-eye-slash"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center">
+                        <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                        <label for="remember-me" class="ml-2 block text-sm text-gray-700">记住我</label>
+                    </div>
+                    <a href="#" class="text-sm text-primary hover:text-primary/80">忘记密码?</a>
+                </div>
+                
+                <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white py-2.5 rounded-lg font-medium transition-colors">登录</button>
+            </form>
+            
+            <div class="relative my-6">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-gray-200"></div>
+                </div>
+                <div class="relative flex justify-center text-sm">
+                    <span class="px-2 bg-white text-gray-500">或者</span>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <button class="flex items-center justify-center py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    <i class="fa fa-weixin text-green-600 mr-2"></i>
+                    <span class="text-sm">微信登录</span>
+                </button>
+                <button class="flex items-center justify-center py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    <i class="fa fa-qq text-blue-500 mr-2"></i>
+                    <span class="text-sm">QQ登录</span>
+                </button>
+            </div>
+            
+            <p class="text-center text-sm text-gray-600">
+                还没有账号? <button id="switch-to-register" class="text-primary font-medium">立即注册</button>
+            </p>
+        </div>
+    </div>
+
+    <!-- 注册模态框 -->
+    <div id="register-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center">
+        <div class="bg-white rounded-xl w-full max-w-md p-6 transform transition-all scale-95 opacity-0" id="register-modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">注册</h3>
+                <button id="close-register-modal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="register-form">
+                <div class="mb-4">
+                    <label for="register-name" class="block text-sm font-medium text-gray-700 mb-1">昵称</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fa fa-user-o text-gray-400"></i>
+                        </div>
+                        <input type="text" id="register-name" name="name" required
+                               class="pl-10 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-primary focus:border-primary"
+                               placeholder="请输入您的昵称">
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="register-email" class="block text-sm font-medium text-gray-700 mb-1">邮箱</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fa fa-envelope-o text-gray-400"></i>
+                        </div>
+                        <input type="email" id="register-email" name="email" required
+                               class="pl-10 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-primary focus:border-primary"
+                               placeholder="your@email.com">
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="register-password" class="block text-sm font-medium text-gray-700 mb-1">密码</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fa fa-lock text-gray-400"></i>
+                        </div>
+                        <input type="password" id="register-password" name="password" required
+                               class="pl-10 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-primary focus:border-primary"
+                               placeholder="至少8个字符，包含字母和数字">
+                        <button type="button" id="toggle-register-password" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                            <i class="fa fa-eye-slash"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label for="register-confirm-password" class="block text-sm font-medium text-gray-700 mb-1">确认密码</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fa fa-lock text-gray-400"></i>
+                        </div>
+                        <input type="password" id="register-confirm-password" name="confirm-password" required
+                               class="pl-10 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-primary focus:border-primary"
+                               placeholder="请再次输入密码">
+                        <button type="button" id="toggle-register-confirm-password" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                            <i class="fa fa-eye-slash"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="flex items-center mb-6">
+                    <input id="agree-terms" name="agree-terms" type="checkbox" required class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                    <label for="agree-terms" class="ml-2 block text-sm text-gray-700">
+                        我已阅读并同意<a href="#" class="text-primary">服务条款</a>和<a href="#" class="text-primary">隐私政策</a>
+                    </label>
+                </div>
+                
+                <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white py-2.5 rounded-lg font-medium transition-colors">注册</button>
+            </form>
+            
+            <div class="relative my-6">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-gray-200"></div>
+                </div>
+                <div class="relative flex justify-center text-sm">
+                    <span class="px-2 bg-white text-gray-500">或者</span>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <button class="flex items-center justify-center py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    <i class="fa fa-weixin text-green-600 mr-2"></i>
+                    <span class="text-sm">微信注册</span>
+                </button>
+                <button class="flex items-center justify-center py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    <i class="fa fa-qq text-blue-500 mr-2"></i>
+                    <span class="text-sm">QQ注册</span>
+                </button>
+            </div>
+            
+            <p class="text-center text-sm text-gray-600">
+                已有账号? <button id="switch-to-login" class="text-primary font-medium">立即登录</button>
+            </p>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // DOM 元素
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const userProfile = document.getElementById('user-profile');
+        const loginModal = document.getElementById('login-modal');
+        const loginModalContent = document.getElementById('login-modal-content');
+        const closeLoginModal = document.getElementById('close-login-modal');
+        const registerModal = document.getElementById('register-modal');
+        const registerModalContent = document.getElementById('register-modal-content');
+        const closeRegisterModal = document.getElementById('close-register-modal');
+        const switchToRegister = document.getElementById('switch-to-register');
+        const switchToLogin = document.getElementById('switch-to-login');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const toggleLoginPassword = document.getElementById('toggle-login-password');
+        const toggleRegisterPassword = document.getElementById('toggle-register-password');
+        const toggleRegisterConfirmPassword = document.getElementById('toggle-register-confirm-password');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const uploadArea = document.getElementById('upload-area');
+        const fileUpload = document.getElementById('file-upload');
+        const uploadBtnCta = document.getElementById('upload-btn-cta');
+        
+        // 检查用户是否已登录
+        function checkLoggedIn() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            const userName = localStorage.getItem('userName');
+            const userAvatar = localStorage.getItem('userAvatar');
+            
+            if (isLoggedIn) {
+                // 更新用户信息
+                document.getElementById('user-name').textContent = userName || '用户';
+                if (userAvatar) {
+                    document.getElementById('user-avatar').src = userAvatar;
+                }
+                
+                // 显示用户头像，隐藏登录按钮
+                userProfile.classList.remove('hidden');
+                loginBtn.classList.add('hidden');
+                
+                // 更新存储信息（示例：随机生成已使用空间）
+                const usedSpace = Math.floor(Math.random() * 16);
+                document.querySelector('.bg-primary.h-2.5.rounded-full').style.width = `${(usedSpace / 16) * 100}%`;
+                document.querySelector('#main-content .bg-white:first-child p.text-gray-500').textContent = `已使用 ${usedSpace}GB / 16GB`;
+                
+                // 更新文件类型统计（示例：随机分配）
+                const imageSpace = Math.floor(Math.random() * usedSpace);
+                const videoSpace = Math.floor(Math.random() * (usedSpace - imageSpace));
+                const docSpace = Math.floor(Math.random() * (usedSpace - imageSpace - videoSpace));
+                const archiveSpace = usedSpace - imageSpace - videoSpace - docSpace;
+                
+                document.querySelectorAll('#main-content .bg-neutral .font-medium')[0].textContent = `${imageSpace.toFixed(1)}GB`;
+                document.querySelectorAll('#main-content .bg-neutral .font-medium')[1].textContent = `${videoSpace.toFixed(1)}GB`;
+                document.querySelectorAll('#main-content .bg-neutral .font-medium')[2].textContent = `${docSpace.toFixed(1)}GB`;
+                document.querySelectorAll('#main-content .bg-neutral .font-medium')[3].textContent = `${archiveSpace.toFixed(1)}GB`;
+                
+                // 显示文件列表（这里只是示例，实际应该从后端获取）
+                if (usedSpace > 0) {
+                    document.querySelector('#main-content .bg-white:last-child .py-12').classList.add('hidden');
+                }
+            } else {
+                // 显示登录按钮，隐藏用户头像
+                userProfile.classList.add('hidden');
+                loginBtn.classList.remove('hidden');
+                
+                // 重置存储信息
+                document.querySelector('.bg-primary.h-2.5.rounded-full').style.width = '0%';
+                document.querySelector('#main-content .bg-white:first-child p.text-gray-500').textContent = `已使用 0GB / 16GB`;
+                
+                // 重置文件类型统计
+                document.querySelectorAll('#main-content .bg-neutral .font-medium').forEach(el => {
+                    el.textContent = '0GB';
+                });
+                
+                // 显示空文件状态
+                document.querySelector('#main-content .bg-white:last-child .py-12').classList.remove('hidden');
+            }
+        }
+        
+        // 打开登录模态框
+        function openLoginModal() {
+            loginModal.classList.remove('hidden');
+            // 添加动画
+            setTimeout(() => {
+                loginModalContent.classList.remove('scale-95', 'opacity-0');
+                loginModalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+        
+        // 关闭登录模态框
+        function closeLoginModal() {
+            loginModalContent.classList.remove('scale-100', 'opacity-100');
+            loginModalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                loginModal.classList.add('hidden');
+            }, 300);
+        }
+        
+        // 打开注册模态框
+        function openRegisterModal() {
+            registerModal.classList.remove('hidden');
+            // 添加动画
+            setTimeout(() => {
+                registerModalContent.classList.remove('scale-95', 'opacity-0');
+                registerModalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+        
+        // 关闭注册模态框
+        function closeRegisterModal() {
+            registerModalContent.classList.remove('scale-100', 'opacity-100');
+            registerModalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                registerModal.classList.add('hidden');
+            }, 300);
+        }
+        
+        // 切换密码可见性
+        function togglePasswordVisibility(toggleBtn, passwordInput) {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            // 切换图标
+            const icon = toggleBtn.querySelector('i');
+if (type === 'password') {
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+        
+        // 切换移动端菜单
+        function toggleMobileMenu() {
+            mobileMenu.classList.toggle('hidden');
+        }
+        
+        // 文件拖放处理
+        function setupDragDrop() {
+            // 阻止默认的拖放行为
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, preventDefaults, false);
+                document.body.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            // 高亮拖放区域
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                uploadArea.classList.add('file-drop-active');
+            }
+            
+            function unhighlight() {
+                uploadArea.classList.remove('file-drop-active');
+            }
+            
+            // 处理文件拖放
+            uploadArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length > 0) {
+                    handleFiles(files);
+                }
+            }
+            
+            // 处理选择的文件
+            fileUpload.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    handleFiles(this.files);
+                }
+            });
+            
+            // 处理上传按钮点击
+            document.getElementById('upload-btn').addEventListener('click', function() {
+                fileUpload.click();
+            });
+            
+            // 处理空状态下的上传按钮点击
+            uploadBtnCta.addEventListener('click', function() {
+                fileUpload.click();
+            });
+            
+            // 处理文件
+            function handleFiles(files) {
+                // 检查用户是否已登录
+                if (!isLoggedIn()) {
+                    openLoginModal();
+                    return;
+                }
+                
+                // 计算文件总大小
+                let totalSize = 0;
+                Array.from(files).forEach(file => {
+                    totalSize += file.size;
+                });
+                
+                // 转换为GB并检查是否超过限制
+                const totalSizeGB = totalSize / (1024 * 1024 * 1024);
+                const usedSpace = parseFloat(document.querySelector('#main-content .bg-white:first-child p.text-gray-500').textContent.split(' ')[1]);
+                const remainingSpace = 16 - usedSpace;
+                
+                if (totalSizeGB > remainingSpace) {
+                    alert(`您的存储空间不足，剩余空间: ${remainingSpace.toFixed(2)}GB`);
+                    return;
+                }
+                
+                // 模拟文件上传
+                uploadFiles(files);
+            }
+            
+            // 检查用户是否登录
+            function isLoggedIn() {
+                return localStorage.getItem('isLoggedIn') === 'true';
+            }
+            
+            // 模拟文件上传
+            function uploadFiles(files) {
+                // 创建上传进度条
+                const uploadProgressContainer = document.createElement('div');
+                uploadProgressContainer.className = 'fixed bottom-4 right-4 w-80 bg-white rounded-lg shadow-lg p-4 z-50 transform transition-all duration-300 translate-y-0';
+                uploadProgressContainer.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-medium">文件上传</h4>
+                        <button class="text-gray-400 hover:text-gray-600" id="close-upload-progress">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                    <div id="upload-items" class="space-y-3"></div>
+                `;
+                document.body.appendChild(uploadProgressContainer);
+                
+                // 关闭上传进度条
+                document.getElementById('close-upload-progress').addEventListener('click', function() {
+                    uploadProgressContainer.classList.add('translate-y-20', 'opacity-0');
+                    setTimeout(() => {
+                        document.body.removeChild(uploadProgressContainer);
+                    }, 300);
+                });
+                
+                // 处理每个文件
+                Array.from(files).forEach((file, index) => {
+                    const fileSize = formatFileSize(file.size);
+                    
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'space-y-1';
+                    fileItem.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <i class="fa fa-file-o mr-2 text-gray-400"></i>
+                                <span class="text-sm truncate max-w-[150px]">${file.name}</span>
+                            </div>
+                            <span class="text-xs text-gray-500" id="progress-text-${index}">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-1.5">
+                            <div class="bg-primary h-1.5 rounded-full" id="progress-bar-${index}" style="width: 0%"></div>
+                        </div>
+                    `;
+                    document.getElementById('upload-items').appendChild(fileItem);
+                    
+                    // 模拟上传进度
+                    let progress = 0;
+                    const progressBar = document.getElementById(`progress-bar-${index}`);
+                    const progressText = document.getElementById(`progress-text-${index}`);
+                    
+                    const interval = setInterval(() => {
+                        progress += Math.random() * 15;
+                        if (progress > 100) {
+                            progress = 100;
+                            clearInterval(interval);
+                            
+                            // 上传完成后更新文件列表
+                            setTimeout(() => {
+                                updateFileList(file);
+                                updateStorageUsage(file.size);
+                            }, 500);
+                        }
+                        
+                        progressBar.style.width = `${progress}%`;
+                        progressText.textContent = `${Math.round(progress)}%`;
+                    }, 300);
+                });
+            }
+            
+            // 更新文件列表
+            function updateFileList(file) {
+                // 隐藏空文件状态
+                document.querySelector('#main-content .bg-white:last-child .py-12').classList.add('hidden');
+                
+                // 获取文件类型图标
+                let fileIcon = 'fa-file-o';
+                let fileType = '文件';
+                
+                if (file.type.startsWith('image/')) {
+                    fileIcon = 'fa-file-image-o';
+                    fileType = '图片';
+                } else if (file.type.startsWith('video/')) {
+                    fileIcon = 'fa-file-video-o';
+                    fileType = '视频';
+                } else if (file.type.startsWith('audio/')) {
+                    fileIcon = 'fa-file-audio-o';
+                    fileType = '音频';
+                } else if (file.type === 'application/pdf') {
+                    fileIcon = 'fa-file-pdf-o';
+                    fileType = 'PDF';
+                } else if (file.type === 'application/msword' || 
+                           file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+                    fileIcon = 'fa-file-word-o';
+                    fileType = 'Word';
+                } else if (file.type === 'application/vnd.ms-excel' || 
+                           file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+                    fileIcon = 'fa-file-excel-o';
+                    fileType = 'Excel';
+                } else if (file.type === 'application/vnd.ms-powerpoint' || 
+                           file.type === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') {
+                    fileIcon = 'fa-file-powerpoint-o';
+                    fileType = 'PowerPoint';
+                } else if (file.name.endsWith('.zip') || file.name.endsWith('.rar') || file.name.endsWith('.7z')) {
+                    fileIcon = 'fa-file-archive-o';
+                    fileType = '压缩包';
+                }
+                
+                // 创建文件项
+                const fileList = document.querySelector('#main-content .bg-white:last-child');
+                const fileItem = document.createElement('div');
+                fileItem.className = 'flex items-center p-3 border-b border-gray-100 hover:bg-gray-50 group transition-colors';
+                fileItem.innerHTML = `
+                    <div class="flex items-center w-1/3">
+                        <div class="w-10 h-10 rounded-md bg-blue-100 flex items-center justify-center text-blue-600 mr-3">
+                            <i class="fa ${fileIcon}"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-medium truncate">${file.name}</h4>
+                            <p class="text-xs text-gray-500">${fileType}</p>
+                        </div>
+                    </div>
+                    <div class="w-1/3 text-sm text-gray-500">
+                        ${formatFileSize(file.size)}
+                    </div>
+                    <div class="w-1/3 text-sm text-gray-500">
+                        ${getFormattedDate(new Date())}
+                    </div>
+                    <div class="ml-auto opacity-0 group-hover:opacity-100 transition-opacity flex space-x-2">
+                        <button class="p-1.5 text-gray-500 hover:text-primary hover:bg-gray-100 rounded transition-colors">
+                            <i class="fa fa-download"></i>
+                        </button>
+                        <button class="p-1.5 text-gray-500 hover:text-primary hover:bg-gray-100 rounded transition-colors">
+                            <i class="fa fa-share-alt"></i>
+                        </button>
+                        <button class="p-1.5 text-gray-500 hover:text-red-500 hover:bg-gray-100 rounded transition-colors">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                // 添加到文件列表顶部
+                const fileListContent = fileList.querySelector('.py-12');
+                if (fileListContent) {
+                    fileList.insertBefore(fileItem, fileListContent);
+                } else {
+                    const fileListHeader = fileList.querySelector('h2');
+                    fileList.insertBefore(fileItem, fileListHeader.nextSibling);
+                }
+            }
+            
+            // 更新存储使用情况
+            function updateStorageUsage(fileSize) {
+                // 获取当前使用量
+                const usageText = document.querySelector('#main-content .bg-white:first-child p.text-gray-500').textContent;
+                const currentUsage = parseFloat(usageText.split(' ')[1]);
+                
+                // 计算新的使用量
+                const fileSizeGB = fileSize / (1024 * 1024 * 1024);
+                const newUsage = currentUsage + fileSizeGB;
+                
+                // 更新进度条和文本
+                document.querySelector('.bg-primary.h-2.5.rounded-full').style.width = `${(newUsage / 16) * 100}%`;
+                document.querySelector('#main-content .bg-white:first-child p.text-gray-500').textContent = `已使用 ${newUsage.toFixed(2)}GB / 16GB`;
+                
+                // 更新文件类型统计（这里简单地将所有文件归为文档类）
+                const docSpaceElement = document.querySelectorAll('#main-content .bg-neutral .font-medium')[2];
+                const currentDocSpace = parseFloat(docSpaceElement.textContent);
+                docSpaceElement.textContent = `${(currentDocSpace + fileSizeGB).toFixed(1)}GB`;
+            }
+            
+            // 格式化文件大小
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+            
+            // 获取格式化的日期
+            function getFormattedDate(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                
+                return `${year}-${month}-${day} ${hours}:${minutes}`;
+            }
+            
+            // 登录表单提交
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // 获取表单数据
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+                
+                // 模拟登录验证
+                setTimeout(() => {
+                    // 存储登录状态
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('userName', email.split('@')[0]);
+                    localStorage.setItem('userAvatar', 'https://picsum.photos/id/1005/200/200');
+                    
+                    // 更新UI
+                    checkLoggedIn();
+                    closeLoginModal();
+                    
+                    // 显示登录成功提示
+                    showNotification('登录成功', 'success');
+                }, 1000);
+            });
+            
+            // 注册表单提交
+            registerForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // 获取表单数据
+                const name = document.getElementById('register-name').value;
+                const email = document.getElementById('register-email').value;
+                const password = document.getElementById('register-password').value;
+                const confirmPassword = document.getElementById('register-confirm-password').value;
+                
+                // 验证密码是否匹配
+                if (password !== confirmPassword) {
+                    showNotification('两次输入的密码不一致', 'error');
+                    return;
+                }
+                
+                // 模拟注册过程
+                setTimeout(() => {
+                    // 存储登录状态
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('userName', name);
+                    localStorage.setItem('userAvatar', 'https://picsum.photos/id/1005/200/200');
+                    
+                    // 更新UI
+                    checkLoggedIn();
+                    closeRegisterModal();
+                    
+                    // 显示注册成功提示
+                    showNotification('注册成功', 'success');
+                }, 1000);
+            });
+            
+            // 显示通知
+            function showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `fixed top-4 right-4 px-4 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300 translate-y-0 flex items-center space-x-3`;
+                
+                let bgColor, textColor, icon;
+                
+                switch (type) {
+                    case 'success':
+                        bgColor = 'bg-green-50';
+                        textColor = 'text-green-800';
+                        icon = 'fa-check-circle';
+                        break;
+                    case 'error':
+                        bgColor = 'bg-red-50';
+                        textColor = 'text-red-800';
+                        icon = 'fa-exclamation-circle';
+                        break;
+                    case 'warning':
+                        bgColor = 'bg-yellow-50';
+                        textColor = 'text-yellow-800';
+                        icon = 'fa-exclamation-triangle';
+                        break;
+                    default:
+                        bgColor = 'bg-blue-50';
+                        textColor = 'text-blue-800';
+                        icon = 'fa-info-circle';
+                }
+                
+                notification.classList.add(bgColor, textColor);
+                notification.innerHTML = `
+                    <i class="fa ${icon}"></i>
+                    <span>${message}</span>
+                    <button class="ml-4 text-gray-400 hover:text-gray-600" id="close-notification">
+                        <i class="fa fa-times"></i>
+                    </button>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // 关闭通知
+                document.getElementById('close-notification').addEventListener('click', function() {
+                    notification.classList.add('translate-y-[-20px]', 'opacity-0');
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                });
+                
+                // 自动关闭
+                setTimeout(() => {
+                    notification.classList.add('translate-y-[-20px]', 'opacity-0');
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                }, 3000);
+            }
+            
+            // 退出登录
+            logoutBtn.addEventListener('click', function() {
+                // 清除登录状态
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('userName');
+                localStorage.removeItem('userAvatar');
+                
+                // 更新UI
+                checkLoggedIn();
+                
+                // 显示退出成功提示
+                showNotification('已退出登录', 'info');
+            });
+            
+            // 导航栏滚动效果
+            window.addEventListener('scroll', function() {
+                const navbar = document.getElementById('navbar');
+                if (window.scrollY > 10) {
+                    navbar.classList.add('shadow-md');
+                } else {
+                    navbar.classList.remove('shadow-md');
+                }
+            });
+            
+            // 初始化
+            function init() {
+                // 检查登录状态
+                checkLoggedIn();
+                
+                // 设置事件监听器
+                loginBtn.addEventListener('click', openLoginModal);
+                closeLoginModal.addEventListener('click', closeLoginModal);
+                switchToRegister.addEventListener('click', function() {
+                    closeLoginModal();
+                    setTimeout(openRegisterModal, 300);
+                });
+                
+                closeRegisterModal.addEventListener('click', closeRegisterModal);
+                switchToLogin.addEventListener('click', function() {
+                    closeRegisterModal();
+                    setTimeout(openLoginModal, 300);
+                });
+                
+                toggleLoginPassword.addEventListener('click', function() {
+                    togglePasswordVisibility(this, document.getElementById('login-password'));
+                });
+                
+                toggleRegisterPassword.addEventListener('click', function() {
+                    togglePasswordVisibility(this, document.getElementById('register-password'));
+                });
+                
+                toggleRegisterConfirmPassword.addEventListener('click', function() {
+                    togglePasswordVisibility(this, document.getElementById('register-confirm-password'));
+                });
+                
+                mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+                
+                // 设置拖放功能
+                setupDragDrop();
+            }
+            
+            // 页面加载完成后初始化
+            document.addEventListener('DOMContentLoaded', init);
+        }
+    </script>
+</body>
+</html>    
